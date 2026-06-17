@@ -1,0 +1,39 @@
+{
+  "name": "thai-address-lookup",
+  "version": "1.0.0",
+  "description": "Lightweight Thai address lookup engine",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "data"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "thai",
+    "address",
+    "thailand",
+    "zipcode",
+    "province",
+    "district",
+    "subdistrict"
+  ],
+  "author": "KriZad",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KriZad/thai-address-package.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
