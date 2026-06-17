@@ -1,6 +1,6 @@
 {
   "name": "@krizad/thai-location-kit",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lightweight Thai address lookup engine",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
