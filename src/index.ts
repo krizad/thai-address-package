@@ -15,6 +15,12 @@ export interface ThaiAddress {
   provinceId: number;
 }
 
+export type ProvinceOnly = Pick<ThaiAddress, 'province' | 'provinceEng' | 'provinceId'>;
+export type DistrictOnly = Pick<ThaiAddress, 'district' | 'districtEng' | 'districtId'>;
+export type SubDistrictOnly = Pick<ThaiAddress, 'subDistrict' | 'subDistrictEng' | 'subDistrictId'>;
+
+export type SearchLevel = 'all' | 'province' | 'district' | 'subDistrict';
+
 export interface DropdownOption {
   label: string;
   value: string;
@@ -46,49 +52,109 @@ const db: ThaiAddress[] = (subDistrictsData as any[]).map(sub => {
 // Helper to clean and format keywords
 const clean = (keyword: string) => keyword.trim().toLowerCase();
 
+function formatSearchResult(results: ThaiAddress[], level: SearchLevel): any[] {
+  if (level === 'all') return results;
+  
+  if (level === 'province') {
+    const map = new Map<number, ProvinceOnly>();
+    results.forEach(r => {
+      if (!map.has(r.provinceId)) {
+        map.set(r.provinceId, { province: r.province, provinceEng: r.provinceEng, provinceId: r.provinceId });
+      }
+    });
+    return Array.from(map.values());
+  }
+  
+  if (level === 'district') {
+    const map = new Map<number, DistrictOnly>();
+    results.forEach(r => {
+      if (!map.has(r.districtId)) {
+        map.set(r.districtId, { district: r.district, districtEng: r.districtEng, districtId: r.districtId });
+      }
+    });
+    return Array.from(map.values());
+  }
+  
+  if (level === 'subDistrict') {
+    const map = new Map<number, SubDistrictOnly>();
+    results.forEach(r => {
+      if (!map.has(r.subDistrictId)) {
+        map.set(r.subDistrictId, { subDistrict: r.subDistrict, subDistrictEng: r.subDistrictEng, subDistrictId: r.subDistrictId });
+      }
+    });
+    return Array.from(map.values());
+  }
+  
+  return results;
+}
+
 /**
  * ====================================================
  * 1. SEARCH FUNCTIONS (Field-specific and Combined)
  * ====================================================
  */
 
-export function searchBySubDistrict(keyword: string): ThaiAddress[] {
+export function searchBySubDistrict(keyword: string, level?: 'all'): ThaiAddress[];
+export function searchBySubDistrict(keyword: string, level: 'province'): ProvinceOnly[];
+export function searchBySubDistrict(keyword: string, level: 'district'): DistrictOnly[];
+export function searchBySubDistrict(keyword: string, level: 'subDistrict'): SubDistrictOnly[];
+export function searchBySubDistrict(keyword: string, level: SearchLevel = 'all'): any[] {
   const query = clean(keyword);
   if (!query) return [];
-  return db.filter(item => 
+  const results = db.filter(item => 
     item.subDistrict.includes(query) || 
     item.subDistrictEng.toLowerCase().includes(query)
   );
+  return formatSearchResult(results, level);
 }
 
-export function searchByDistrict(keyword: string): ThaiAddress[] {
+export function searchByDistrict(keyword: string, level?: 'all'): ThaiAddress[];
+export function searchByDistrict(keyword: string, level: 'province'): ProvinceOnly[];
+export function searchByDistrict(keyword: string, level: 'district'): DistrictOnly[];
+export function searchByDistrict(keyword: string, level: 'subDistrict'): SubDistrictOnly[];
+export function searchByDistrict(keyword: string, level: SearchLevel = 'all'): any[] {
   const query = clean(keyword);
   if (!query) return [];
-  return db.filter(item => 
+  const results = db.filter(item => 
     item.district.includes(query) || 
     item.districtEng.toLowerCase().includes(query)
   );
+  return formatSearchResult(results, level);
 }
 
-export function searchByProvince(keyword: string): ThaiAddress[] {
+export function searchByProvince(keyword: string, level?: 'all'): ThaiAddress[];
+export function searchByProvince(keyword: string, level: 'province'): ProvinceOnly[];
+export function searchByProvince(keyword: string, level: 'district'): DistrictOnly[];
+export function searchByProvince(keyword: string, level: 'subDistrict'): SubDistrictOnly[];
+export function searchByProvince(keyword: string, level: SearchLevel = 'all'): any[] {
   const query = clean(keyword);
   if (!query) return [];
-  return db.filter(item => 
+  const results = db.filter(item => 
     item.province.includes(query) || 
     item.provinceEng.toLowerCase().includes(query)
   );
+  return formatSearchResult(results, level);
 }
 
-export function searchByZipcode(keyword: string): ThaiAddress[] {
+export function searchByZipcode(keyword: string, level?: 'all'): ThaiAddress[];
+export function searchByZipcode(keyword: string, level: 'province'): ProvinceOnly[];
+export function searchByZipcode(keyword: string, level: 'district'): DistrictOnly[];
+export function searchByZipcode(keyword: string, level: 'subDistrict'): SubDistrictOnly[];
+export function searchByZipcode(keyword: string, level: SearchLevel = 'all'): any[] {
   const query = clean(keyword);
   if (!query) return [];
-  return db.filter(item => item.zipcode.includes(query));
+  const results = db.filter(item => item.zipcode.includes(query));
+  return formatSearchResult(results, level);
 }
 
-export function searchAllFields(keyword: string): ThaiAddress[] {
+export function searchAllFields(keyword: string, level?: 'all'): ThaiAddress[];
+export function searchAllFields(keyword: string, level: 'province'): ProvinceOnly[];
+export function searchAllFields(keyword: string, level: 'district'): DistrictOnly[];
+export function searchAllFields(keyword: string, level: 'subDistrict'): SubDistrictOnly[];
+export function searchAllFields(keyword: string, level: SearchLevel = 'all'): any[] {
   const query = clean(keyword);
   if (!query) return [];
-  return db.filter(item => 
+  const results = db.filter(item => 
     item.subDistrict.includes(query) ||
     item.subDistrictEng.toLowerCase().includes(query) ||
     item.district.includes(query) ||
@@ -97,6 +163,7 @@ export function searchAllFields(keyword: string): ThaiAddress[] {
     item.provinceEng.toLowerCase().includes(query) ||
     item.zipcode.includes(query)
   );
+  return formatSearchResult(results, level);
 }
 
 /**
@@ -104,6 +171,30 @@ export function searchAllFields(keyword: string): ThaiAddress[] {
  * 2. CASCADING DROPDOWN HELPERS (Hierarchical / Reverse Lookup)
  * ====================================================
  */
+
+// [New Feature] Unified Dropdown List Generator
+export function getDropdownList(
+  level: 'province' | 'district' | 'subDistrict',
+  parentLocation?: { province?: string; district?: string }
+): string[] {
+  if (level === 'province') {
+    return getUniqueProvinces();
+  }
+
+  if (level === 'district') {
+    if (!parentLocation?.province) return [];
+    return getDistrictsByProvince(parentLocation.province);
+  }
+
+  if (level === 'subDistrict') {
+    if (!parentLocation?.province || !parentLocation?.district) return [];
+    const subs = getSubDistrictsByDistrict(parentLocation.province, parentLocation.district);
+    const subNames = subs.map(item => item.subDistrict);
+    return [...new Set(subNames)].sort((a, b) => a.localeCompare(b, 'th'));
+  }
+
+  return [];
+}
 
 // [Hierarchical] Step 1: Get all unique provinces
 export function getUniqueProvinces(): string[] {

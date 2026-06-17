@@ -7,7 +7,8 @@
 - **ทำงานแบบ In-memory:** โหลดข้อมูลและค้นหาได้อย่างรวดเร็ว ไม่ต้องต่อ API
 - **รองรับ TypeScript:** มี Type definition ครบถ้วน (`ThaiAddress`)
 - **การค้นหาที่ยืดหยุ่น:** ค้นหาได้ทั้งแบบแยกฟิลด์ หรือค้นหาจากทุกฟิลด์รวมกัน
-- **รองรับระบบ Dropdown (Cascading):** ฟังก์ชันสำหรับดึงข้อมูลเป็นลำดับชั้น (จังหวัด -> อำเภอ -> ตำบล -> รหัสไปรษณีย์) สำหรับทำฟอร์มกรอกที่อยู่
+- **รองรับการระบุ Level เพื่อคืนค่าเฉพาะเจาะจง:** สามารถระบุได้ว่าจะคืนค่าเฉพาะ จังหวัด, อำเภอ, หรือ ตำบล (ตัดข้อมูลที่ซ้ำซ้อนออกให้อัตโนมัติ)
+- **รองรับระบบ Dropdown (Cascading):** ฟังก์ชันสำหรับดึงข้อมูลเป็นลำดับชั้น (จังหวัด -> อำเภอ -> ตำบล -> รหัสไปรษณีย์) สำหรับทำฟอร์มกรอกที่อยู่ พร้อมฟังก์ชันแบบ Unified ดึงข้อมูลตาม Level
 - **รองรับการค้นหาด้วยภาษาอังกฤษ:** สามารถค้นหาชื่อตำบล อำเภอ จังหวัด ด้วยภาษาอังกฤษได้
 
 ## 📦 การติดตั้ง (Installation)
@@ -24,57 +25,57 @@ pnpm add @krizad/thai-location-kit
 
 ## 🚀 ตัวอย่างการใช้งาน (Usage & Examples)
 
-### 1. การค้นหาข้อมูล (Search)
+### 1. การค้นหาข้อมูลแบบกำหนด Level (Targeted Search)
 
-คุณสามารถค้นหาข้อมูลที่อยู่จากคำค้นหา (Keyword) ได้หลากหลายวิธี
+คุณสามารถค้นหาข้อมูลที่อยู่และระบุ `level` เพื่อให้คืนค่าเฉพาะข้อมูลในระดับที่ต้องการ (เช่น คืนค่าเฉพาะระดับจังหวัด หรือ อำเภอ) ระบบจะกรองข้อมูลที่ซ้ำซ้อนออกให้โดยอัตโนมัติ
 
 ```typescript
-import { 
-  searchByZipcode, 
-  searchBySubDistrict,
-  searchAllFields
-} from '@krizad/thai-location-kit';
+import { searchAllFields, searchByProvince } from '@krizad/thai-location-kit';
 
-// ค้นหาที่อยู่ทั้งหมดในรหัสไปรษณีย์ 10400
-const zipcodeResults = searchByZipcode('10400');
-console.log(zipcodeResults);
-// Output: [{ subDistrict: 'พญาไท', district: 'พญาไท', province: 'กรุงเทพมหานคร', zipcode: '10400', ... }, ...]
+// คืนค่าที่อยู่ทั้งหมดเต็มรูปแบบ (default)
+const allFields = searchAllFields('บาง'); 
 
-// ค้นหาจากชื่อตำบล (ค้นหาได้ทั้งภาษาไทยและอังกฤษ)
-const subDistrictResults = searchBySubDistrict('บางซื่อ');
+// คืนค่าเฉพาะรายชื่อจังหวัดที่มีคำว่า "บาง"
+const provinceOnly = searchAllFields('บาง', 'province'); 
+/* 
+[
+  { province: 'กรุงเทพมหานคร', provinceEng: 'Bangkok', provinceId: 1 },
+  { province: 'ชลบุรี', provinceEng: 'Chon Buri', provinceId: 20 },
+  ...
+]
+*/
 
-// ค้นหาจากคำใดๆ (ค้นหาครอบคลุมทุกฟิลด์ เช่น พิมพ์ "ขอนแก่น" หรือ "40000")
-const mixedResults = searchAllFields('ขอนแก่น');
+// คืนค่าเฉพาะรายชื่ออำเภอที่อยู่ในจังหวัด "เชียงใหม่"
+const districtOnly = searchByProvince('เชียงใหม่', 'district');
+/*
+[
+  { district: 'เมืองเชียงใหม่', districtEng: 'Mueang Chiang Mai', districtId: ... },
+  ...
+]
+*/
 ```
 
-### 2. การสร้างแบบฟอร์มที่อยู่ (Cascading Dropdowns)
+### 2. การสร้างแบบฟอร์มที่อยู่ด้วย Unified Dropdown (Cascading)
 
-ฟังก์ชันชุดนี้เหมาะสำหรับการทำฟอร์มที่ให้ผู้ใช้เลือก **จังหวัด -> อำเภอ -> ตำบล** ตามลำดับ
+ฟังก์ชัน `getDropdownList` ช่วยให้การสร้าง Dropdown List เป็นเรื่องง่าย โดยคืนค่าเป็น array ของ String `string[]` ทันที
 
 ```typescript
-import { 
-  getUniqueProvinces, 
-  getDistrictsByProvince, 
-  getSubDistrictsByDistrict,
-  getZipcodeByHierarchy
-} from '@krizad/thai-location-kit';
+import { getDropdownList, getZipcodeByHierarchy } from '@krizad/thai-location-kit';
 
 // สเต็ปที่ 1: ดึงรายชื่อจังหวัดทั้งหมด เพื่อนำไปสร้าง Dropdown จังหวัด
-const provinces = getUniqueProvinces(); 
+const provinces = getDropdownList('province'); 
 // ['กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', ...]
 
 // สเต็ปที่ 2: เมื่อผู้ใช้เลือกจังหวัด ให้ดึงรายชื่ออำเภอในจังหวัดนั้น
-const districtsInBkk = getDistrictsByProvince('กรุงเทพมหานคร');
+const districtsInBkk = getDropdownList('district', { province: 'กรุงเทพมหานคร' });
 // ['เขตคลองสาน', 'เขตคลองเตย', 'เขตจตุจักร', ...]
 
 // สเต็ปที่ 3: เมื่อผู้ใช้เลือกอำเภอ ให้ดึงรายชื่อตำบล
-const subDistrictsInChatuchak = getSubDistrictsByDistrict('กรุงเทพมหานคร', 'เขตจตุจักร');
-/* 
-[
-  { subDistrict: 'จตุจักร', zipcode: '10900', ... }, 
-  { subDistrict: 'จอมพล', zipcode: '10900', ... }
-] 
-*/
+const subDistrictsInChatuchak = getDropdownList('subDistrict', { 
+  province: 'กรุงเทพมหานคร', 
+  district: 'เขตจตุจักร' 
+});
+// ['จตุจักร', 'จอมพล', ...]
 
 // สเต็ปที่ 4: เติมรหัสไปรษณีย์อัตโนมัติเมื่อเลือกครบ
 const zipcode = getZipcodeByHierarchy('กรุงเทพมหานคร', 'เขตจตุจักร', 'จอมพล');
@@ -136,6 +137,8 @@ export interface ThaiAddress {
   provinceId: number;     // รหัสจังหวัด
 }
 
+export type SearchLevel = 'all' | 'province' | 'district' | 'subDistrict';
+
 export interface DropdownOption {
   label: string;          // ข้อความสำหรับแสดงใน Dropdown
   value: string;          // ค่า Value สำหรับอ้างอิง
@@ -144,15 +147,17 @@ export interface DropdownOption {
 ```
 
 ### หมวดหมู่การค้นหา (Search Functions)
+*สามารถระบุ parameter ตัวที่สองเป็น `SearchLevel` เพื่อจำกัดข้อมูลที่คืนค่ากลับมาได้*
 
-- `searchBySubDistrict(keyword: string): ThaiAddress[]`
-- `searchByDistrict(keyword: string): ThaiAddress[]`
-- `searchByProvince(keyword: string): ThaiAddress[]`
-- `searchByZipcode(keyword: string): ThaiAddress[]`
-- `searchAllFields(keyword: string): ThaiAddress[]`
+- `searchBySubDistrict(keyword: string, level?: SearchLevel): any[]`
+- `searchByDistrict(keyword: string, level?: SearchLevel): any[]`
+- `searchByProvince(keyword: string, level?: SearchLevel): any[]`
+- `searchByZipcode(keyword: string, level?: SearchLevel): any[]`
+- `searchAllFields(keyword: string, level?: SearchLevel): any[]`
 
 ### หมวดหมู่แบบฟอร์มลำดับชั้น (Cascading / Hierarchy)
 
+- `getDropdownList(level: 'province' | 'district' | 'subDistrict', parentLocation?: { province?: string, district?: string }): string[]`
 - `getUniqueProvinces(): string[]`
 - `getDistrictsByProvince(province: string): string[]`
 - `getSubDistrictsByDistrict(province: string, district: string): ThaiAddress[]`
