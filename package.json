@@ -1,22 +1,37 @@
 {
   "name": "@krizad/thai-location-kit",
-  "version": "1.0.5",
-  "description": "Lightweight Thai address lookup engine",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "version": "1.0.0",
+  "description": "Lightweight Thai address lookup engine — search by sub-district, district, province, or zipcode with cascading dropdown support. Works in Node.js and the browser.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
     }
   },
   "files": [
-    "dist",
-    "data"
+    "dist"
   ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "build": "tsup",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "keywords": [
     "thai",
@@ -50,7 +65,17 @@
     "type": "git",
     "url": "git+https://github.com/KriZad/thai-address-package.git"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "vitest related --run",
+      "tsc --noEmit"
+    ]
+  },
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "tsup": "^8.5.1",
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.9"
   }
 }

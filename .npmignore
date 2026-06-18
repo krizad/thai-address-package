@@ -1,0 +1,10 @@
+src/
+test/
+scripts/
+data/
+tsconfig.json
+tsup.config.ts
+vitest.config.*
+coverage/
+.DS_Store
+*.tsbuildinfo
