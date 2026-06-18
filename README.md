@@ -18,11 +18,11 @@
 ติดตั้งผ่าน npm หรือ yarn:
 
 ```bash
-npm install @krizad/thai-location-kit
+npm install @krizad/thai-address-helper
 # หรือ
-yarn add @krizad/thai-location-kit
+yarn add @krizad/thai-address-helper
 # หรือ
-pnpm add @krizad/thai-location-kit
+pnpm add @krizad/thai-address-helper
 ```
 
 ## 🚀 ตัวอย่างการใช้งาน (Usage & Examples)
@@ -33,7 +33,7 @@ pnpm add @krizad/thai-location-kit
 **หมายเหตุ:** ข้อมูลที่คืนค่าจะรวมถึงข้อมูลในระดับบนที่เกี่ยวข้อง (Top-level) ของสิ่งที่ค้นเจอติดมาด้วย (เช่น ถ้าระบุ level `subDistrict` จะได้ข้อมูล `district` และ `province` ติดมาด้วยเสมอ)
 
 ```typescript
-import { searchAllFields, searchByProvince } from '@krizad/thai-location-kit';
+import { searchAllFields, searchByProvince } from '@krizad/thai-address-helper';
 
 // คืนค่าที่อยู่ทั้งหมดเต็มรูปแบบ (default)
 const allFields = searchAllFields('บาง'); 
@@ -63,7 +63,7 @@ const districtOnly = searchByProvince('เชียงใหม่', 'district')
 ฟังก์ชัน `getDropdownList` ช่วยให้การสร้าง Dropdown List เป็นเรื่องง่าย โดยคืนค่าเป็น array ของ String `string[]` ทันที
 
 ```typescript
-import { getDropdownList, getZipcodeByHierarchy } from '@krizad/thai-location-kit';
+import { getDropdownList, getZipcodeByHierarchy } from '@krizad/thai-address-helper';
 
 // สเต็ปที่ 1: ดึงรายชื่อจังหวัดทั้งหมด เพื่อนำไปสร้าง Dropdown จังหวัด
 const provinces = getDropdownList('province'); 
@@ -90,7 +90,7 @@ const zipcode = getZipcodeByHierarchy('กรุงเทพมหานคร',
 หากต้องการให้ผู้ใช้กรอก รหัสไปรษณีย์ หรือ ตำบล แล้วฟอร์มเติมอำเภอและจังหวัดให้อัตโนมัติ:
 
 ```typescript
-import { cascadeFromZipcode, cascadeFromSubDistrict } from '@krizad/thai-location-kit';
+import { cascadeFromZipcode, cascadeFromSubDistrict } from '@krizad/thai-address-helper';
 
 // เมื่อกรอก 10400 จะได้รายการที่อยู่เพื่อนำไปเติมอัตโนมัติ
 const addresses = cascadeFromZipcode('10400');
@@ -104,7 +104,7 @@ const addressesFromSub = cascadeFromSubDistrict('ดินแดง');
 ฟังก์ชัน `formatToDropdownOptions` ช่วยแปลงรูปแบบข้อมูลให้พร้อมใช้งานกับ Component Dropdown ทั่วไป เช่น React-Select โดยสามารถระบุตัวคั่น `separator` ระหว่างข้อมูลได้ (ค่าเริ่มต้นคือ `" "`)
 
 ```typescript
-import { searchByZipcode, formatToDropdownOptions } from '@krizad/thai-location-kit';
+import { searchByZipcode, formatToDropdownOptions } from '@krizad/thai-address-helper';
 
 const rawData = searchByZipcode('10400');
 

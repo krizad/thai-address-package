@@ -1,5 +1,5 @@
 {
-  "name": "@krizad/thai-location-kit",
+  "name": "@krizad/thai-address-helper",
   "version": "1.0.0",
   "description": "Lightweight Thai address lookup engine — search by sub-district, district, province, or zipcode with cascading dropdown support. Works in Node.js and the browser.",
   "main": "./dist/index.js",
@@ -63,7 +63,7 @@
   "homepage": "https://krizad.github.io/thai-address-demo/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KriZad/thai-address-package.git"
+    "url": "git+https://github.com/KriZad/thai-address-helper-package.git"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
